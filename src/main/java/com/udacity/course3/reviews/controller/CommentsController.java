@@ -21,7 +21,6 @@ import java.util.List;
 @RequestMapping("/comments")
 public class CommentsController {
 
-    // TODO: Wire needed JPA repositories here
     @Autowired
     CommentService commentService;
 
@@ -30,11 +29,6 @@ public class CommentsController {
 
     /**
      * Creates a comment for a review.
-     *
-     * 1. Add argument for comment entity. Use {@link RequestBody} annotation.
-     * 2. Check for existence of review.
-     * 3. If review not found, return NOT_FOUND.
-     * 4. If found, save comment.
      *
      * @param reviewId The id of the review.
      */
@@ -53,10 +47,6 @@ public class CommentsController {
 
     /**
      * List comments for a review.
-     *
-     * 2. Check for existence of review.
-     * 3. If review not found, return NOT_FOUND.
-     * 4. If found, return list of comments.
      *
      * @param reviewId The id of the review.
      */
