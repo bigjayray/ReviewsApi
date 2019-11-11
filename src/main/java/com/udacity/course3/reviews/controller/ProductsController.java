@@ -17,16 +17,12 @@ import java.util.List;
 @RequestMapping("/products")
 public class ProductsController {
 
-    // TODO: Wire JPA repositories here
     @Autowired
     private ProductService productService;
 
 
     /**
      * Creates a product.
-     *
-     * 1. Accept product as argument. Use {@link RequestBody} annotation.
-     * 2. Save product.
      */
     @RequestMapping(value = "/", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
