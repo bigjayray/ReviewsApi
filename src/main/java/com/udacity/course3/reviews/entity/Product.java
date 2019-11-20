@@ -18,14 +18,11 @@ public class Product {
     @Column(name = "product_price")
     private double productPrice;
 
-//    @OneToMany(mappedBy = "product_id", cascade = CascadeType.ALL)
-//    private List<Review> reviews;
-
     @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL)
     @JoinColumn(name = "product_id")
     private List<Review> reviews;
 
-    public Product() {};
+    public Product() {}
 
     public Integer getProduct_Id() {
         return product_Id;
