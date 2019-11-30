@@ -1,14 +1,16 @@
 package com.udacity.course3.reviews.controller;
 
 import com.udacity.course3.reviews.entity.Product;
-import com.udacity.course3.reviews.service.ProductService;
+import com.udacity.course3.reviews.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpServerErrorException;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Spring REST controller for working with product entity.
@@ -19,7 +21,7 @@ public class ProductsController {
 
     // TODO: Wire JPA repositories here
     @Autowired
-    private ProductService productService;
+    private ProductRepository productRepository;
 
 
     /**
@@ -31,7 +33,7 @@ public class ProductsController {
     @RequestMapping(value = "/", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public void createProduct(@Valid @RequestBody Product product) {
-        productService.saveProduct(product);
+        productRepository.save(product);
     }
 
     /**
@@ -42,8 +44,11 @@ public class ProductsController {
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ResponseEntity<Product> findById(@PathVariable("id") int id) {
-        Product product = productService.findById(id);
-        return new ResponseEntity<Product>(product, HttpStatus.OK);
+        Optional<Product> product = productRepository.findById(id);
+        if (product.isPresent()) {
+            return new ResponseEntity<Product>(product.get(), HttpStatus.OK);
+        }
+        throw new HttpServerErrorException(HttpStatus.NOT_FOUND);
     }
 
     /**
@@ -53,6 +58,6 @@ public class ProductsController {
      */
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public List<Product> listProducts() {
-        return productService.list();
+        return productRepository.findAll();
     }
 }

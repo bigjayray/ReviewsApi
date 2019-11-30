@@ -1,17 +1,19 @@
 package com.udacity.course3.reviews.controller;
 
+import com.udacity.course3.reviews.entity.Comment;
 import com.udacity.course3.reviews.entityM.CommentM;
-import com.udacity.course3.reviews.serviceM.CommentServiceM;
-import com.udacity.course3.reviews.serviceM.ReviewServiceM;
+import com.udacity.course3.reviews.entityM.ReviewM;
+import com.udacity.course3.reviews.repository.CommentRepository;
+import com.udacity.course3.reviews.repository.ReviewRepository;
+import com.udacity.course3.reviews.repositoryM.CommentRepositoryM;
+import com.udacity.course3.reviews.repositoryM.ReviewRepositoryM;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.List;
 
 /**
@@ -22,12 +24,17 @@ import java.util.List;
 public class CommentsController {
 
     // wire Mongodb repositories here
+    @Autowired
+    CommentRepositoryM commentRepositoryM;
 
     @Autowired
-    CommentServiceM commentServiceM;
+    CommentRepository commentRepository;
 
     @Autowired
-    ReviewServiceM reviewServiceM;
+    ReviewRepositoryM reviewRepositoryM;
+
+    @Autowired
+    ReviewRepository reviewRepository;
 
     /**
      * Creates a comment for a review.
@@ -39,13 +46,20 @@ public class CommentsController {
      * @param reviewId The id of the review.
      */
     @RequestMapping(value = "/reviews/{reviewId}", method = RequestMethod.POST)
-    public ResponseEntity<?> createCommentForReview(@PathVariable("reviewId") String reviewId, @Valid @RequestBody CommentM commentM) {
-        if (reviewServiceM.findByIdM(reviewId).isPresent()) {
-            CommentM savedComment = commentServiceM.saveCommentM(commentM);
+    public ResponseEntity<?> createCommentForReview(@PathVariable("reviewId") Integer reviewId, @Valid @RequestBody Comment comment) {
+        if (reviewRepository.findById(reviewId).isPresent()) {
+            commentRepository.save(comment);
 
-            URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{reviewId}")
-                    .buildAndExpand(savedComment.getId()).toUri();
-            return ResponseEntity.created(uri).build();
+            ReviewM reviewM = null;
+            if (reviewRepositoryM.findById(reviewId).isPresent()) {
+                reviewM = reviewRepositoryM.findById(reviewId).get();
+                List<CommentM> comments = reviewM.getComments();
+                CommentM commentM = new CommentM(comment.getCommentId(), comment.getCommenterName(), comment.getCommentTexts(), comment.getReviewId());
+                comments.add(commentM);
+                reviewM.setComments(comments);
+            }
+
+            return new ResponseEntity<ReviewM>(reviewRepositoryM.save(reviewM), HttpStatus.OK);
         }
 
         throw new HttpServerErrorException(HttpStatus.NOT_FOUND);
@@ -61,9 +75,9 @@ public class CommentsController {
      * @param reviewId The id of the review.
      */
     @RequestMapping(value = "/reviews/{reviewId}", method = RequestMethod.GET)
-    public List<CommentM> listCommentsForReview(@PathVariable("reviewId") String reviewId) {
-        if (reviewServiceM.findByIdM(reviewId).isPresent()) {
-            return commentServiceM.listM(reviewId);
+    public List<?> listCommentsForReview(@PathVariable("reviewId") Integer reviewId) {
+        if (reviewRepository.findById(reviewId).isPresent()) {
+            return commentRepository.findAllByReviewId(reviewId);
         }
         throw new HttpServerErrorException(HttpStatus.NOT_FOUND);
     }

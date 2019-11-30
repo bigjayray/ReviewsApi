@@ -8,26 +8,26 @@ import javax.persistence.Id;
 public class CommentM {
 
     @Id
-    private String id;
+    private int id;
 
     private String commenterName;
 
     private String commentTexts;
 
-    private String reviewId;
+    private Integer reviewId;
 
-    public CommentM(String id, String commenterName, String commentTexts, String reviewId) {
+    public CommentM(int id, String commenterName, String commentTexts, Integer reviewId) {
         this.id = id;
         this.commenterName = commenterName;
         this.commentTexts = commentTexts;
         this.reviewId = reviewId;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -47,11 +47,11 @@ public class CommentM {
         this.commentTexts = commentTexts;
     }
 
-    public String getReviewId() {
+    public Integer getReviewId() {
         return reviewId;
     }
 
-    public void setReviewId(String reviewId) {
+    public void setReviewId(Integer reviewId) {
         this.reviewId = reviewId;
     }
 }

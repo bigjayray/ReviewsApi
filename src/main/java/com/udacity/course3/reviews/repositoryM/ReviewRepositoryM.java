@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ReviewRepositoryM extends MongoRepository<ReviewM, String> {
+public interface ReviewRepositoryM extends MongoRepository<ReviewM, Integer> {
 
     @Query("{ 'productId' : ?0 }")
     List<ReviewM> findReviewMByProductId(int id);

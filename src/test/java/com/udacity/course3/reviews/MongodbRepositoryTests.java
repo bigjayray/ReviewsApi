@@ -31,12 +31,12 @@ public class MongodbRepositoryTests {
     @Before
     public void init(){
         //creating review object
-        ReviewM reviewM = new ReviewM("1", 1, "Joey", "Nice product");
+        ReviewM reviewM = new ReviewM(1, 1, "Joey", "Nice product");
         //saving reviewM to db
         mongoTemplate.save(reviewM, "reviews");
 
         //creating comment object
-        CommentM commentM = new CommentM("1","john", "nice review joey", "1");
+        CommentM commentM = new CommentM(1,"john", "nice review joey", 1);
         //saving reviewM to db
         mongoTemplate.save(commentM, "comments");
     }
@@ -52,7 +52,7 @@ public class MongodbRepositoryTests {
     @Test
     public void findCommentMByReviewMId() {
         //find all comments using findCommentMByReviewMId() method in the commentM repository
-        List<CommentM> list = commentRepositoryM.findCommentMByReviewMId("1");
+        List<CommentM> list = commentRepositoryM.findCommentMByReviewMId(1);
         assertThat(list).isNotNull();
     }
 }

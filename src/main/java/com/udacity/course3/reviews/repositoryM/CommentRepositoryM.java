@@ -11,5 +11,5 @@ import java.util.List;
 public interface CommentRepositoryM extends MongoRepository<CommentM, String> {
 
     @Query("{ 'reviewId' : ?0 }")
-    List<CommentM> findCommentMByReviewMId(String id);
+    List<CommentM> findCommentMByReviewMId(Integer id);
 }

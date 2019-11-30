@@ -1,14 +1,15 @@
 package com.udacity.course3.reviews.controller;
 
+import com.udacity.course3.reviews.entity.Review;
 import com.udacity.course3.reviews.entityM.ReviewM;
-import com.udacity.course3.reviews.service.ProductService;
-import com.udacity.course3.reviews.serviceM.ReviewServiceM;
+import com.udacity.course3.reviews.repository.ProductRepository;
+import com.udacity.course3.reviews.repository.ReviewRepository;
+import com.udacity.course3.reviews.repositoryM.ReviewRepositoryM;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
@@ -19,12 +20,15 @@ import java.util.List;
 @RestController
 public class ReviewsController {
 
-    //Wired JPA and Mongodb repositories here
     @Autowired
-    private ReviewServiceM reviewServiceM;
+    private ProductRepository productRepository;
 
     @Autowired
-    private ProductService productService;
+    private ReviewRepository reviewRepository;
+
+    @Autowired
+    private ReviewRepositoryM reviewRepositoryM;
+
 
     /**
      * Creates a review for a product.
@@ -36,13 +40,12 @@ public class ReviewsController {
      *
      */
     @RequestMapping(value = "/reviews/products/{productId}", method = RequestMethod.POST)
-    public ResponseEntity<ReviewM> createReviewForProduct(@PathVariable("productId") Integer productId, @RequestBody ReviewM reviewM) {
-        if (productService.findById(productId) != null) {
-            ReviewM savedReview = reviewServiceM.saveReviewM(reviewM);
+    public ResponseEntity<?> createReviewForProduct(@PathVariable("productId") Integer productId, @RequestBody Review review) {
+        if (productRepository.findById(productId).isPresent()) {
+            reviewRepository.save(review);
+            ReviewM reviewM = new ReviewM(review.getReviewId(),review.getProductId(),review.getReviewerName(), review.getReviewerText());
 
-            URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{productId}")
-                    .buildAndExpand(savedReview.getId()).toUri();
-            return ResponseEntity.created(uri).build();
+            return new ResponseEntity<ReviewM>(reviewRepositoryM.save(reviewM), HttpStatus.OK);
         }
         throw new HttpServerErrorException(HttpStatus.NOT_FOUND);
     }
@@ -54,8 +57,14 @@ public class ReviewsController {
      * @return The list of reviews.
      */
     @RequestMapping(value = "/reviews/products/{productId}", method = RequestMethod.GET)
-    public ResponseEntity<List<ReviewM>> listReviewsForProduct(@PathVariable("productId") Integer productId) {
-        List<ReviewM> list = reviewServiceM.listM(productId);
-        return new ResponseEntity<List<ReviewM>>(list, HttpStatus.OK);
+    public ResponseEntity<List<?>> listReviewsForProduct(@PathVariable("productId") Integer productId) {
+        if (productRepository.findById(productId).isPresent()) {
+            List<?> reviewIds = reviewRepository.findReviewIdsByProductId(productId);
+
+            List<?> list = reviewRepositoryM.findReviewMByProductId(productId);
+
+            return new ResponseEntity<List<?>>(list, HttpStatus.OK);
+        }
+        throw new HttpServerErrorException(HttpStatus.NOT_FOUND);
     }
 }
